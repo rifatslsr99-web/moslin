@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  firstName String?
+  lastName  String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  designs       Design[]
+  orders        Order[]
+  measurements  Measurement[]
+  wishlist      Design[]       @relation("Wishlist")
+}
+
+// Design model - represents a custom outfit design
+model Design {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name            String   @default("My Design")
+  category        String   // "shirt", "blazer", "trousers", "dress", etc.
+  budget          String   // "Essential", "Exclusive", "Tailored"
+
+  fabricId        String?
+  fabric          Fabric?  @relation(fields: [fabricId], references: [id])
+  baseColor       String   // Hex color code
+
+  // Customizations stored as JSON for flexibility
+  customizations  Json     // { collar: "spread", sleeve: "long", cuff: "french", etc. }
+
+  previewImage    String?  // URL to stored preview image
+
+  status          String   @default("draft") // "draft", "saved", "inCart", "ordered"
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  orderedIn       Order?   @relation(fields: [orderedInId], references: [id])
+  orderedInId     String?
+
+  wishlistedBy    User[]   @relation("Wishlist")
+}
+
+// Fabric model - represents available fabrics
+model Fabric {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  color           String
+  priceAdjustment Float    @default(0) // Additional cost on top of base price
+  imageUrl        String   // URL to fabric swatch image
+  description     String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  designs         Design[]
+}
+
+// Customization options model
+model CustomizationOption {
+  id              String   @id @default(cuid())
+  type            String   // "collar", "sleeve", "cuff", "button", "pocket", "fit", "length", "embroidery", "border", "initials"
+  name            String   // e.g., "Spread collar", "Long sleeves", "French cuff"
+  priceAdjustment Float    @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Order model - represents a customer order
+model Order {
+  id                      String   @id @default(cuid())
+  userId                  String
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  designs                 Design[]
+
+  status                  String   @default("draft") // "draft", "pending_payment", "paid", "measuring", "in_production", "quality_check", "packaging", "shipped", "delivered"
+
+  advancePaymentAmount    Float
+  remainingBalance        Float
+  totalPrice              Float
+
+  productionStartDate     DateTime?
+  estimatedDelivery       DateTime?
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+// Measurement model - stores user body measurements
+model Measurement {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  chest           Float?   // cm
+  waist           Float?   // cm
+  hips            Float?   // cm
+  inseam          Float?   // cm
+  shoulderWidth   Float?   // cm
+  armLength       Float?   // cm
+  neckSize        Float?   // cm
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Accessory model - for future feature
+model Accessory {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  price           Float
+  imageUrl        String?
+  category        String   // "belt", "tie", "scarf", "hat", etc.
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
