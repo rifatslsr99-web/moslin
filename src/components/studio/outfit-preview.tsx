@@ -1,41 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import { useCustomizationStore } from "@/store/customization-store";
 import { Badge } from "@/components/ui/primitives";
+import SVGOutfitPreview from "./svg-outfit-preview";
 
 export default function OutfitPreview() {
-  const { currentDesign, isPreviewVisible, setPreviewVisible } = useCustomizationStore();
+  const { currentDesign, isPreviewVisible, setPreviewVisible } =
+    useCustomizationStore();
   const pricing = currentDesign.pricing;
+  const customizations = currentDesign.customizations || {};
 
   return (
     <div className="sticky top-24 space-y-4">
-      {/* Preview Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="bg-slate-100 aspect-square flex items-center justify-center p-6">
+        {/* Preview Card */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {isPreviewVisible ? (
-            <div className="text-center">
-              <div
-                className="w-32 h-40 mx-auto mb-4 rounded-lg shadow-md"
-                style={{
-                  backgroundColor: currentDesign.baseColor || "#2c3e50",
-                  opacity: 0.8,
-                }}
-              />
-              <p className="text-slate-600 font-medium text-sm">
-                {currentDesign.category ? `${currentDesign.category.toUpperCase()}` : "Select garment"}
-              </p>
-              {currentDesign.fabricId && (
-                <p className="text-slate-500 text-xs mt-1">
-                  Fabric: {currentDesign.fabricId}
-                </p>
-              )}
-            </div>
+            <SVGOutfitPreview />
           ) : (
-            <div className="text-center text-slate-500">
-              <p className="text-sm">3D Preview Coming Soon</p>
+            <div className="bg-slate-100 aspect-square flex items-center justify-center p-6">
+              <div className="text-center text-slate-500">
+                <p className="text-sm">3D Preview Coming Soon</p>
+              </div>
             </div>
           )}
-        </div>
 
         {/* Details */}
         <div className="p-4 space-y-3">
@@ -120,13 +108,13 @@ export default function OutfitPreview() {
         </div>
       )}
 
-      {/* Preview Toggle */}
-      <button
-        onClick={() => setPreviewVisible(!isPreviewVisible)}
-        className="w-full text-sm text-slate-600 hover:text-slate-900 py-2 border border-slate-200 rounded-lg transition-colors"
-      >
-        {isPreviewVisible ? "Hide Preview" : "Show Preview"}
-      </button>
+        {/* Preview Toggle */}
+        <button
+          onClick={() => setPreviewVisible(!isPreviewVisible)}
+          className="w-full text-sm text-slate-600 hover:text-slate-900 py-2 border border-slate-200 rounded-lg transition-colors"
+        >
+          {isPreviewVisible ? "Hide Preview" : "Show Preview"}
+        </button>
     </div>
   );
 }

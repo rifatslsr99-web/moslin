@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useCustomizationStore } from "@/store/customization-store";
 import { Button } from "@/components/ui/primitives";
+import DraggableOption from "./draggable-option";
 
 const CUSTOMIZATION_OPTIONS = [
   {
@@ -90,17 +91,14 @@ export default function CustomizationPanel({ onNext, onPrevious }: Customization
               <div className="px-6 py-4 bg-white border-t border-slate-200">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {category.options.map((option) => (
-                    <button
+                    <DraggableOption
                       key={option}
+                      type={category.type}
+                      value={option}
+                      label={option}
+                      isSelected={customizations[category.type] === option}
                       onClick={() => setCustomization(category.type, option)}
-                      className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
-                        customizations[category.type] === option
-                          ? "border-slate-900 bg-slate-100 text-slate-900"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
-                      }`}
-                    >
-                      {option}
-                    </button>
+                    />
                   ))}
                 </div>
               </div>
